@@ -16,6 +16,22 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
+    /**
+     * @return Event[]
+     */
+    public function findNearestUpcoming(int $limit = 3, ?\DateTimeImmutable $from = null): array
+    {
+        $from ??= new \DateTimeImmutable();
+
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.event_date >= :from')
+            ->setParameter('from', $from)
+            ->orderBy('e.event_date', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Event[] Returns an array of Event objects
     //     */

@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+  {% if nearestEvents is not empty %}
+    <div id="nearestEventsCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+        {% for event in nearestEvents %}
+          <button
+            type="button"
+            data-bs-target="#nearestEventsCarousel"
+            data-bs-slide-to="{{ loop.index0 }}"
+            class="{{ loop.first ? 'active' : '' }}"
+            aria-current="{{ loop.first ? 'true' : 'false' }}"
+            aria-label="Slide {{ loop.index }}"
+          ></button>
+        {% endfor %}
+      </div>
+
+      <div class="carousel-inner">
+        {% for event in nearestEvents %}
+          <div class="carousel-item {{ loop.first ? 'active' : '' }}">
+            {% if event.picture %}
+              <img src="{{ event.picture }}" class="d-block w-100" alt="{{ event.title }}" style="height: 420px; object-fit: cover;" />
+            {% else %}
+              <div class="d-block w-100 bg-secondary" style="height: 420px;"></div>
+            {% endif %}
+
+            <div class="carousel-caption d-none d-md-block text-start">
+              <h2 class="h3">{{ event.title }}</h2>
+              <p class="mb-2">
+                {{ event.eventDate|date('m/d/Y H:i') }} — {{ event.location }}
+              </p>
+              <a class="btn btn-primary" href="{{ path('app_events_show', { id: event.id }) }}">View details</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <button class="carousel-control-prev" type="button" data-bs-target="#nearestEventsCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#nearestEventsCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  {% else %}
+    <div class="container my-4">
+      <div class="alert alert-info mb-0">No upcoming events yet.</div>
+    </div>
+  {% endif %}
+
+  <div class="container my-4">
+    <h1 class="h4 mb-3">Welcome</h1>
+    <p class="text-body-secondary mb-0">
+      Check the next events in the carousel above, or browse all events.
+      <a href="{{ path('app_events_index') }}">Go to events</a>.
+    </p>
+  </div>
+{% endblock %}
+

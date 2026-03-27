@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Events{% endblock %}
+
+{% block body %}
+  <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h3 mb-0">Events</h1>
+      <a class="btn btn-primary" href="{{ path('app_events_new') }}">New event</a>
+    </div>
+
+    <form method="get" action="{{ path('app_events_index') }}" class="card card-body mb-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-6">
+          <label for="event-search" class="form-label mb-1">Search <small><i>(Title, location, organizer)</i></small></label>
+          <input
+            id="event-search"
+            name="q"
+            type="text"
+            value="{{ filters.q|default('') }}"
+            class="form-control bg-dark text-light border-secondary"
+            placeholder="Title, location, organizer..."
+          >
+        </div>
+        <div class="col-12 col-md-4">
+          <label for="event-status" class="form-label mb-1">Status</label>
+          <select id="event-status" name="status" class="form-select bg-dark text-light border-secondary">
+            <option value="all" {{ (filters.status|default('all')) == 'all' ? 'selected' : '' }}>All</option>
+            <option value="today" {{ (filters.status|default('all')) == 'today' ? 'selected' : '' }}>Today</option>
+            <option value="upcoming" {{ (filters.status|default('all')) == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+            <option value="passed" {{ (filters.status|default('all')) == 'passed' ? 'selected' : '' }}>Passed</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+          <button class="btn btn-info w-100" type="submit">Filter</button>
+          <a class="btn btn-outline" href="{{ path('app_events_index') }}">Reset</a>
+        </div>
+      </div>
+    </form>
+
+    {% if events is empty %}
+      <div class="alert alert-info">No events found.</div>
+    {% else %}
+      <div class="row g-3">
+        {% set previousStatus = null %}
+        {% for event in events %}
+          {% set now = 'now'|date('Y-m-d') %}
+          {% set eventDay = event.eventDate|date('Y-m-d') %}
+          {% if eventDay == now %}
+            {% set status = 'today' %}
+          {% elseif eventDay > now %}
+            {% set status = 'upcoming' %}
+          {% else %}
+            {% set status = 'passed' %}
+          {% endif %}
+
+          {% if previousStatus != status %}
+            <div class="col-12">
+              {% if status == 'today' %}
+                <h2 class="h4 mt-2 mb-1">Today's events</h2>
+              {% elseif status == 'upcoming' %}
+                <h2 class="h4 mt-4 mb-1">Upcoming events</h2>
+              {% else %}
+                <h2 class="h4 mt-4 mb-1">Passed events</h2>
+              {% endif %}
+              <hr class="mt-0 mb-2" />
+            </div>
+          {% endif %}
+          {% set previousStatus = status %}
+
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100">
+              {% if event.picture %}
+                <img class="card-img-top" src="{{ event.picture }}" alt="event picture" style="object-fit: cover; height: 200px;" />
+              {% endif %}
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h2 class="h5 card-title mb-0">{{ event.title }}</h2>
+                  {% if status == 'today' %}
+                    <span class="badge bg-success">Today</span>
+                  {% elseif status == 'upcoming' %}
+                    <span class="badge bg-primary">Upcoming</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Passed</span>
+                  {% endif %}
+                </div>
+                <div class="small text-body-secondary mb-2">
+                  <div>Date: {{ event.eventDate|date('m/d/Y H:i') }}</div>
+                  <div>Location: {{ event.location }}</div>
+                </div>
+                <a class="btn btn-outline-primary btn-sm" href="{{ path('app_events_show', { id: event.id }) }}">Details</a>
+                <a class="btn btn-outline-info btn-sm" href="{{ path('app_events_edit', { id: event.id }) }}">Edit</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
