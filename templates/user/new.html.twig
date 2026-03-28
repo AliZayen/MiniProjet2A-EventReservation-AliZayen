@@ -5,38 +5,38 @@
 {% block body %}
   <div class="container my-4" style="max-width: 920px;">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="h3 mb-0">Create user</h1>
-      <a class="btn btn-outline-secondary" href="{{ path('app_users_index') }}">Back</a>
+      <h1 class="h3 mb-0"><i class="bi bi-person-plus me-2 text-primary" aria-hidden="true"></i>Create user</h1>
+      <a class="btn btn-outline-secondary" href="{{ path('app_users_index') }}"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back</a>
     </div>
 
     <div class="card">
-      <div class="card-header">User information</div>
+      <div class="card-header"><i class="bi bi-person-vcard me-2" aria-hidden="true"></i>User information</div>
       <div class="card-body">
         {{ form_start(form) }}
           {{ form_errors(form) }}
 
           <div class="row g-3">
-            <div class="col-12 col-md-6">
-              {{ form_row(form.fullName) }}
-            </div>
-            <div class="col-12 col-md-6">
-              {{ form_row(form.email) }}
-            </div>
-            <div class="col-12 col-md-6">
-              {{ form_row(form.type) }}
-            </div>
-            <div class="col-12 col-md-6">
-              {{ form_row(form.plainPassword) }}
-            </div>
+            <div class="col-12 col-md-6">{{ form_row(form.fullName) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.email) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.type) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.plainPassword) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.phoneNumber) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.profession) }}</div>
+            <div class="col-12">{{ form_row(form.address) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.birthDate) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.organizerApproved) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.website) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.facebook) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.instagram) }}</div>
+            <div class="col-12 col-md-6">{{ form_row(form.whatsapp) }}</div>
           </div>
 
           <div class="d-flex gap-2 mt-3">
-            <button class="btn btn-primary">Create</button>
-            <a class="btn btn-outline-secondary" href="{{ path('app_users_index') }}">Cancel</a>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>Create</button>
+            <a class="btn btn-outline-secondary" href="{{ path('app_users_index') }}"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</a>
           </div>
         {{ form_end(form) }}
       </div>
     </div>
   </div>
 {% endblock %}
-

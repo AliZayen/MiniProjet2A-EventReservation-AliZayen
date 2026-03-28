@@ -26,6 +26,7 @@ class UserFixtures extends Fixture
         $organizer->setFullName('Organizer User');
         $organizer->setEmail('organizer@example.com');
         $organizer->setType(User::TYPE_ORGANIZER);
+        $organizer->setOrganizerApproved(true);
         $organizer->setPassword($this->hasher->hashPassword($organizer, 'organizer123'));
         $manager->persist($organizer);
 

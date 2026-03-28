@@ -78,6 +78,25 @@ final class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/users/{id}/approve-organizer', name: 'app_users_approve_organizer', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function approveOrganizer(Request $request, User $user, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        if ($user->getType() !== User::TYPE_ORGANIZER) {
+            throw $this->createNotFoundException();
+        }
+
+        $token = (string) $request->request->get('_token');
+        if ($this->isCsrfTokenValid('approve_organizer_'.$user->getId(), $token)) {
+            $user->setOrganizerApproved(true);
+            $em->flush();
+            $this->addFlash('success', 'Organizer account approved.');
+        }
+
+        return $this->redirectToRoute('app_users_show', ['id' => $user->getId()]);
+    }
+
     #[Route('/users/{id}', name: 'app_users_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $em): Response
     {

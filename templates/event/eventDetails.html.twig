@@ -8,22 +8,22 @@
       <div>
         <h1 class="h3 mb-1">{{ event.title }}</h1>
         <div class="text-body-secondary">
-          <div><strong>Date:</strong> {{ event.eventDate|date('m/d/Y H:i') }}</div>
-          <div><strong>Location:</strong> {{ event.location }}</div>
-          <div><strong>Organizer:</strong> {{ event.orgnizer }}</div>
+          <div><i class="bi bi-clock me-2" aria-hidden="true"></i><strong>Date:</strong> {{ event.eventDate|date('m/d/Y H:i') }}</div>
+          <div><i class="bi bi-geo-alt me-2" aria-hidden="true"></i><strong>Location:</strong> {{ event.location }}</div>
+          <div><i class="bi bi-person-badge me-2" aria-hidden="true"></i><strong>Organizer:</strong> {{ event.orgnizer }}</div>
           {% if can_see_approval %}
             <div>
-              <strong>Approval:</strong>
+              <strong><i class="bi bi-shield-check me-1" aria-hidden="true"></i>Approval:</strong>
               {% if event.accepted %}
-                <span class="badge bg-success">Accepted</span>
+                <span class="badge bg-success"><i class="bi bi-check-lg me-1" aria-hidden="true"></i>Accepted</span>
               {% else %}
-                <span class="badge bg-warning text-dark">Pending admin approval</span>
+                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1" aria-hidden="true"></i>Pending admin approval</span>
               {% endif %}
             </div>
           {% endif %}
-          <div><strong>Ticket prices:</strong> {{ event.ticketPrices ?: '—' }}</div>
+          <div><i class="bi bi-ticket-perforated me-2" aria-hidden="true"></i><strong>Ticket prices:</strong> {{ event.ticketPrices ?: '—' }}</div>
           <div>
-            <strong>Tags:</strong>
+            <i class="bi bi-tags me-2" aria-hidden="true"></i><strong>Tags:</strong>
             {% if event.tags is empty %}
               —
             {% else %}
@@ -32,20 +32,23 @@
               {% endfor %}
             {% endif %}
           </div>
-          <div><strong>Created at:</strong> {{ event.createdAt ? event.createdAt|date('m/d/Y H:i') : '—' }}</div>
-          <div><strong>Updated at:</strong> {{ event.updatedAt ? event.updatedAt|date('m/d/Y H:i') : '—' }}</div>
+          <div><i class="bi bi-calendar-plus me-2" aria-hidden="true"></i><strong>Created at:</strong> {{ event.createdAt ? event.createdAt|date('m/d/Y H:i') : '—' }}</div>
+          <div><i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i><strong>Updated at:</strong> {{ event.updatedAt ? event.updatedAt|date('m/d/Y H:i') : '—' }}</div>
         </div>
       </div>
 
-      <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="{{ path('app_events_index') }}">Back</a>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary" href="{{ path('app_events_index') }}"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back</a>
+        {% if can_manage_event or is_granted('ROLE_ADMIN') %}
+          <a class="btn btn-outline-info" href="{{ path('app_event_registrations', { id: event.id }) }}"><i class="bi bi-people me-1" aria-hidden="true"></i>Registrations</a>
+        {% endif %}
         {% if can_manage_event %}
-          <a class="btn btn-info" href="{{ path('app_events_edit', { id: event.id }) }}">Edit</a>
+          <a class="btn btn-info" href="{{ path('app_events_edit', { id: event.id }) }}"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Edit</a>
         {% endif %}
         {% if is_granted('ROLE_ADMIN') and not event.accepted %}
           <form method="post" action="{{ path('app_events_accept', { id: event.id }) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('accept_event_' ~ event.id) }}">
-            <button class="btn btn-success">Accept</button>
+            <button class="btn btn-success" type="submit"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Accept</button>
           </form>
         {% endif %}
       </div>
@@ -55,15 +58,42 @@
       <img class="img-fluid rounded mb-3" src="{{ event.picture }}" alt="event picture" />
     {% endif %}
 
+    {% if can_register %}
+      <div class="card mb-3 border-primary">
+        <div class="card-header text-bg-primary"><i class="bi bi-bookmark-plus me-2" aria-hidden="true"></i>Register for this event</div>
+        <div class="card-body">
+          <form method="post" action="{{ path('app_event_register', { id: event.id }) }}" class="row g-2 align-items-end">
+            <input type="hidden" name="_token" value="{{ csrf_token('register_event_' ~ event.id) }}">
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="ticket_type">Ticket type</label>
+              <select class="form-select" name="ticket_type" id="ticket_type">
+                {% for opt in ticket_options %}
+                  <option value="{{ opt }}">{{ opt }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Reserve</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    {% elseif existing_registration %}
+      <div class="alert alert-success">
+        <i class="bi bi-bookmark-check me-2" aria-hidden="true"></i>You are registered for this event ({{ existing_registration.ticketType }}, payment: {{ existing_registration.paymentStatus }}).
+        <a class="alert-link" href="{{ path('app_registrations_my') }}">View my registrations</a>
+      </div>
+    {% endif %}
+
     <div class="card mb-3">
-      <div class="card-header">Details</div>
+      <div class="card-header"><i class="bi bi-file-text me-2" aria-hidden="true"></i>Details</div>
       <div class="card-body">
         <p class="mb-0">{{ event.details ?: '—' }}</p>
       </div>
     </div>
 
     <div class="card mb-3">
-      <div class="card-header">Planning</div>
+      <div class="card-header"><i class="bi bi-list-task me-2" aria-hidden="true"></i>Planning</div>
       <div class="card-body">
         <p class="mb-0">{{ event.planning ?: '—' }}</p>
       </div>
@@ -72,7 +102,7 @@
     {% if can_manage_event %}
       <form method="post" action="{{ path('app_events_delete', { id: event.id }) }}" onsubmit="return confirm('Delete this event?');">
         <input type="hidden" name="_token" value="{{ csrf_token('delete_event_' ~ event.id) }}">
-        <button class="btn btn-danger">Delete</button>
+        <button class="btn btn-danger" type="submit"><i class="bi bi-trash me-1" aria-hidden="true"></i>Delete</button>
       </form>
     {% endif %}
   </div>

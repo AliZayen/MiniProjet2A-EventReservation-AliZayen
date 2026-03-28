@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -43,6 +44,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank]
     private ?string $fullName = null;
 
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $phoneNumber = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $address = null;
+
+    #[ORM\Column(length: 120, nullable: true)]
+    private ?string $profession = null;
+
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $birthDate = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $website = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $facebook = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $instagram = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $whatsapp = null;
+
+    /** Must be true for organizers to receive ROLE_ORGANIZER and use organizer features. */
+    #[ORM\Column]
+    private bool $organizerApproved = true;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -72,6 +101,114 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): static
+    {
+        $this->phoneNumber = $phoneNumber !== null ? trim($phoneNumber) : null;
+
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): static
+    {
+        $this->address = $address !== null ? trim($address) : null;
+
+        return $this;
+    }
+
+    public function getProfession(): ?string
+    {
+        return $this->profession;
+    }
+
+    public function setProfession(?string $profession): static
+    {
+        $this->profession = $profession !== null ? trim($profession) : null;
+
+        return $this;
+    }
+
+    public function getBirthDate(): ?\DateTimeImmutable
+    {
+        return $this->birthDate;
+    }
+
+    public function setBirthDate(?\DateTimeImmutable $birthDate): static
+    {
+        $this->birthDate = $birthDate;
+
+        return $this;
+    }
+
+    public function getWebsite(): ?string
+    {
+        return $this->website;
+    }
+
+    public function setWebsite(?string $website): static
+    {
+        $this->website = $website !== null ? trim($website) : null;
+
+        return $this;
+    }
+
+    public function getFacebook(): ?string
+    {
+        return $this->facebook;
+    }
+
+    public function setFacebook(?string $facebook): static
+    {
+        $this->facebook = $facebook !== null ? trim($facebook) : null;
+
+        return $this;
+    }
+
+    public function getInstagram(): ?string
+    {
+        return $this->instagram;
+    }
+
+    public function setInstagram(?string $instagram): static
+    {
+        $this->instagram = $instagram !== null ? trim($instagram) : null;
+
+        return $this;
+    }
+
+    public function getWhatsapp(): ?string
+    {
+        return $this->whatsapp;
+    }
+
+    public function setWhatsapp(?string $whatsapp): static
+    {
+        $this->whatsapp = $whatsapp !== null ? trim($whatsapp) : null;
+
+        return $this;
+    }
+
+    public function isOrganizerApproved(): bool
+    {
+        return $this->organizerApproved;
+    }
+
+    public function setOrganizerApproved(bool $organizerApproved): static
+    {
+        $this->organizerApproved = $organizerApproved;
+
+        return $this;
+    }
+
     public function getType(): string
     {
         return $this->type;
@@ -84,9 +221,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
@@ -100,11 +234,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
 
-        // Ensure roles consistent with type
         if ($this->type === self::TYPE_ADMIN) {
             $roles[] = 'ROLE_ADMIN';
         } elseif ($this->type === self::TYPE_ORGANIZER) {
-            $roles[] = 'ROLE_ORGANIZER';
+            if ($this->organizerApproved) {
+                $roles[] = 'ROLE_ORGANIZER';
+            }
         } else {
             $roles[] = 'ROLE_PARTICIPANT';
         }
@@ -136,7 +271,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
     }
 }
-

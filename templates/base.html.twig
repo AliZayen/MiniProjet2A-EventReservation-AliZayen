@@ -5,28 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}Welcome!{% endblock %}</title>
 
-        <link id="theme-light" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5/dist/flatly/bootstrap.min.css">
-        <link id="theme-dark" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5/dist/cyborg/bootstrap.min.css" disabled>
-
-        <script>
-            (function () {
-                const savedTheme = localStorage.getItem('theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const theme = savedTheme || (prefersDark ? 'dark' : 'light');
-                document.documentElement.setAttribute('data-theme', theme);
-            })();
-        </script>
-
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5/dist/cyborg/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+        <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ path('app_home') }}">MyEvent</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarColor02">
+            <div class="collapse navbar-collapse " id="navbarColor02">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_home') }}">Home</a>
@@ -34,12 +24,20 @@
                 <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_events_index') }}">Events</a>
                 </li>
+                {% if is_granted('ROLE_PARTICIPANT') %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ path('app_registrations_my') }}"><i class="bi bi-bookmark-check me-1" aria-hidden="true"></i>My registrations</a>
+                </li>
+                {% endif %}
                 {% if is_granted('ROLE_ORGANIZER') %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ path('app_events_my') }}">My events</a>
+                  <a class="nav-link" href="{{ path('app_events_my') }}"><i class="bi bi-collection me-1" aria-hidden="true"></i>My events</a>
                 </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN') %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ path('app_admin_registrations') }}">Registrations</a>
+                </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{{ path('app_users_index') }}">Users</a>
                 </li>
@@ -50,43 +48,28 @@
               {% if app.user %}
                 <span class="small text-white-50 d-none d-md-inline">{{ app.user.userIdentifier }}</span>
                 <form method="post" action="{{ path('app_logout') }}" class="mb-0">
-                  <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                  <button class="btn btn-danger btn-sm" type="submit"><i class="bi bi-box-arrow-left me-1" aria-hidden="true"></i>Sign out</button>
                 </form>
               {% else %}
-                <a class="btn btn-outline-light btn-sm" href="{{ path('app_login') }}">Login</a>
+                <a class="btn btn-outline-dark btn-sm" href="{{ path('app_register') }}"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>Sign up</a>
+                <a class="btn btn-success btn-sm" href="{{ path('app_login') }}"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign in</a>
               {% endif %}
-
-              <button id="theme-toggle" type="button" class="btn btn-outline-light btn-sm" aria-label="Toggle color theme">Dark mode</button>
             </div>
             </div>
         </div>
         </nav>
 
+        {% for label, messages in app.flashes %}
+          {% for message in messages %}
+            <div class="container mt-3">
+              <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+
         {% block body %}{% endblock %}
-
-        <script>
-            (function () {
-                const lightTheme = document.getElementById('theme-light');
-                const darkTheme = document.getElementById('theme-dark');
-                const toggle = document.getElementById('theme-toggle');
-
-                function applyTheme(theme) {
-                    const isDark = theme === 'dark';
-                    lightTheme.disabled = isDark;
-                    darkTheme.disabled = !isDark;
-                    document.documentElement.setAttribute('data-theme', theme);
-                    toggle.textContent = isDark ? 'Light mode' : 'Dark mode';
-                    localStorage.setItem('theme', theme);
-                }
-
-                const initialTheme = document.documentElement.getAttribute('data-theme') || 'light';
-                applyTheme(initialTheme);
-
-                toggle.addEventListener('click', function () {
-                    const currentTheme = document.documentElement.getAttribute('data-theme');
-                    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
-                });
-            })();
-        </script>
     </body>
 </html>

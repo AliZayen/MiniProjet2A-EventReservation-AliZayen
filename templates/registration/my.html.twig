@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My registrations{% endblock %}
+
+{% block body %}
+  <div class="container my-4">
+    <h1 class="h3 mb-3"><i class="bi bi-bookmark-check me-2" aria-hidden="true"></i>My registrations</h1>
+
+    {% if registrations is empty %}
+      <div class="alert alert-secondary"><i class="bi bi-inbox me-2" aria-hidden="true"></i>You have no registrations yet.</div>
+    {% else %}
+      <div class="table-responsive card">
+        <table class="table table-striped align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Ticket</th>
+              <th>Payment</th>
+              <th>Reserved</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in registrations %}
+              <tr>
+                <td>{{ r.event.title }}</td>
+                <td>{{ r.event.eventDate|date('m/d/Y H:i') }}</td>
+                <td>{{ r.ticketType }}</td>
+                <td>
+                  {% if r.paymentStatus == 'paid' %}
+                    <span class="badge bg-success"><i class="bi bi-cash-coin me-1" aria-hidden="true"></i>Paid</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1" aria-hidden="true"></i>Not paid</span>
+                  {% endif %}
+                </td>
+                <td>{{ r.reservedAt|date('m/d/Y H:i') }}</td>
+                <td>
+                  <a class="btn btn-outline-primary btn-sm" href="{{ path('app_events_show', { id: r.event.id }) }}"><i class="bi bi-eye me-1" aria-hidden="true"></i>Event</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

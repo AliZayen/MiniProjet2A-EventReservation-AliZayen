@@ -158,7 +158,7 @@ class Event
 
     public function isPinned(): bool
     {
-        return $this->pinned;
+        return !$this->accepted;
     }
 
     public function setPinned(bool $pinned): static

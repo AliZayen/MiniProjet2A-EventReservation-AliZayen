@@ -5,17 +5,17 @@
 {% block body %}
   <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="h3 mb-0">Edit event</h1>
+      <h1 class="h3 mb-0"><i class="bi bi-pencil-square me-2 text-info" aria-hidden="true"></i>Edit event</h1>
       <div class="d-flex gap-2">
-        <a class="btn btn-outline-danger" href="{{ path('app_events_show', { id: event.id }) }}">Back</a>
-        <a class="btn btn-outline" href="{{ path('app_events_index') }}">All events</a>
+        <a class="btn btn-outline-danger" href="{{ path('app_events_show', { id: event.id }) }}"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back</a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_events_index') }}"><i class="bi bi-calendar-event me-1" aria-hidden="true"></i>All events</a>
       </div>
     </div>
 
     <div class="row g-4">
       <div class="col-12 col-lg-8">
         <div class="card">
-          <div class="card-header">Event information</div>
+          <div class="card-header"><i class="bi bi-card-text me-2" aria-hidden="true"></i>Event information</div>
           <div class="card-body">
             {{ form_start(form, { attr: { class: 'needs-validation' } }) }}
               {{ form_errors(form) }}
@@ -106,8 +106,8 @@
               </div>
 
               <div class="d-flex flex-wrap gap-2 mt-3">
-                <button class="btn btn-info">Save changes</button>
-                <a class="btn btn-outline-danger" href="{{ path('app_events_show', { id: event.id }) }}">Cancel</a>
+                <button class="btn btn-info" type="submit"><i class="bi bi-floppy me-1" aria-hidden="true"></i>Save changes</button>
+                <a class="btn btn-outline-danger" href="{{ path('app_events_show', { id: event.id }) }}"><i class="bi bi-x-lg me-1" aria-hidden="true"></i>Cancel</a>
               </div>
             {{ form_end(form) }}
           </div>
@@ -116,12 +116,12 @@
 
       <div class="col-12 col-lg-4">
         <div class="card mb-3">
-          <div class="card-header">Preview</div>
+          <div class="card-header"><i class="bi bi-eye me-2" aria-hidden="true"></i>Preview</div>
           <div class="card-body">
             {% if event.picture %}
               <img class="img-fluid rounded mb-2" src="{{ event.picture }}" alt="event picture" />
             {% else %}
-              <div class="alert alert-secondary mb-0">No picture yet.</div>
+              <div class="alert alert-secondary mb-0"><i class="bi bi-image me-2" aria-hidden="true"></i>No picture yet.</div>
             {% endif %}
             <div class="small text-body-secondary mt-2">
               <div><strong>Title:</strong> {{ event.title }}</div>
@@ -132,12 +132,12 @@
         </div>
 
         <div class="card border-danger">
-          <div class="card-header text-bg-danger">Danger zone</div>
+          <div class="card-header text-bg-danger"><i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>Danger zone</div>
           <div class="card-body">
             <p class="mb-2">Delete this event permanently.</p>
             <form method="post" action="{{ path('app_events_delete', { id: event.id }) }}" onsubmit="return confirm('Delete this event?');">
               <input type="hidden" name="_token" value="{{ csrf_token('delete_event_' ~ event.id) }}">
-              <button class="btn btn-danger w-100">Delete event</button>
+              <button class="btn btn-danger w-100" type="submit"><i class="bi bi-trash me-1" aria-hidden="true"></i>Delete event</button>
             </form>
           </div>
         </div>

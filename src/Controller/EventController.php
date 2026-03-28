@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Event;
 use App\Entity\User;
 use App\Form\EventType;
+use App\Repository\EventRegistrationRepository;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -202,16 +203,26 @@ final class EventController extends AbstractController
     }
 
     #[Route('/events/{id}', name: 'app_events_show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function show(Event $event): Response
+    public function show(Event $event, EventRegistrationRepository $eventRegistrationRepository): Response
     {
         if (!$event->isAccepted() && !$this->canManageEvent($event)) {
             throw $this->createAccessDeniedException('You cannot access this event yet.');
         }
 
+        $user = $this->getUser();
+        $existingRegistration = ($user instanceof User && $this->isGranted('ROLE_PARTICIPANT'))
+            ? $eventRegistrationRepository->findOneByUserAndEvent($user, $event)
+            : null;
+
+        $ticketOptions = $this->buildTicketOptions($event);
+
         return $this->render('event/eventDetails.html.twig', [
             'event' => $event,
             'can_manage_event' => $this->canManageEvent($event),
             'can_see_approval' => $this->isGranted('ROLE_ADMIN') || $this->canManageEvent($event),
+            'can_register' => $this->isGranted('ROLE_PARTICIPANT') && $event->isAccepted() && null === $existingRegistration,
+            'existing_registration' => $existingRegistration,
+            'ticket_options' => $ticketOptions,
         ]);
     }
 
@@ -294,5 +305,23 @@ final class EventController extends AbstractController
         }
 
         return $event->getOrganizerId() === $user->getId();
+    }
+
+    /**
+     * @return string[]
+     */
+    private function buildTicketOptions(Event $event): array
+    {
+        $raw = trim((string) $event->getTicketPrices());
+        if ($raw === '') {
+            return ['General'];
+        }
+        $split = preg_split('/[;,]+/', $raw);
+        $parts = array_filter(array_map('trim', \is_array($split) ? $split : []));
+        if ($parts === []) {
+            return ['General'];
+        }
+
+        return array_values($parts);
     }
 }

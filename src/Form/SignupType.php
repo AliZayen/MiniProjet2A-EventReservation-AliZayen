@@ -5,30 +5,46 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
-class UserType extends AbstractType
+class SignupType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('fullName', TextType::class, [
                 'label' => 'Full name',
+                'constraints' => [new NotBlank()],
             ])
-            ->add('email', EmailType::class)
+            ->add('email', EmailType::class, [
+                'constraints' => [new NotBlank()],
+            ])
             ->add('type', ChoiceType::class, [
+                'label' => 'Account type',
                 'choices' => [
-                    'Admin' => User::TYPE_ADMIN,
-                    'Organizer' => User::TYPE_ORGANIZER,
                     'Participant' => User::TYPE_PARTICIPANT,
+                    'Organizer' => User::TYPE_ORGANIZER,
+                ],
+                'help' => 'Organizer accounts require administrator approval before you can sign in.',
+            ])
+            ->add('plainPassword', RepeatedType::class, [
+                'mapped' => false,
+                'type' => PasswordType::class,
+                'first_options' => ['label' => 'Password'],
+                'second_options' => ['label' => 'Repeat password'],
+                'invalid_message' => 'Passwords must match.',
+                'constraints' => [
+                    new NotBlank(),
+                    new Length(min: 6, max: 4096),
                 ],
             ])
             ->add('phoneNumber', TextType::class, [
@@ -51,11 +67,11 @@ class UserType extends AbstractType
                 'input' => 'datetime_immutable',
             ])
             ->add('website', TextType::class, [
-                'label' => 'Website',
+                'label' => 'Website (organizers)',
                 'required' => false,
             ])
             ->add('facebook', TextType::class, [
-                'label' => 'Facebook',
+                'label' => 'Facebook (URL or handle)',
                 'required' => false,
             ])
             ->add('instagram', TextType::class, [
@@ -65,19 +81,6 @@ class UserType extends AbstractType
             ->add('whatsapp', TextType::class, [
                 'label' => 'WhatsApp',
                 'required' => false,
-            ])
-            ->add('organizerApproved', CheckboxType::class, [
-                'label' => 'Organizer approved (required for organizer login)',
-                'required' => false,
-            ])
-            ->add('plainPassword', PasswordType::class, [
-                'mapped' => false,
-                'required' => false,
-                'label' => 'Password',
-                'help' => 'Set/Change the password (leave empty to keep current).',
-                'constraints' => [
-                    new Length(min: 6, max: 4096),
-                ],
             ]);
     }
 

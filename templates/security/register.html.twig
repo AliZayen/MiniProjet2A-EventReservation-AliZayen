@@ -1,0 +1,292 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create account{% endblock %}
+
+{% block body %}
+  <style>
+    .register-stepper-nav {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.25rem;
+      margin-bottom: 1.75rem;
+      position: relative;
+    }
+    .register-stepper-nav::before {
+      content: "";
+      position: absolute;
+      top: 1.15rem;
+      left: 12%;
+      right: 12%;
+      height: 2px;
+      background: var(--bs-secondary-bg);
+      z-index: 0;
+    }
+    .register-stepper-nav.register-stepper-nav--two::before {
+      left: 18%;
+      right: 18%;
+    }
+    .register-stepper-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .register-stepper-badge {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin: 0 auto 0.35rem;
+      background: var(--bs-secondary);
+      color: var(--bs-body-color);
+      border: 2px solid var(--bs-border-color);
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .register-stepper-item.active .register-stepper-badge {
+      background: var(--bs-primary);
+      border-color: var(--bs-primary);
+      color: #fff;
+    }
+    .register-stepper-item.done .register-stepper-badge {
+      background: var(--bs-success);
+      border-color: var(--bs-success);
+      color: #fff;
+    }
+    .register-stepper-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--bs-secondary-color);
+    }
+    .register-stepper-item.active .register-stepper-label {
+      color: var(--bs-body-color);
+      font-weight: 600;
+    }
+    .register-step-panel[hidden] {
+      display: none !important;
+    }
+  </style>
+
+  <div class="container my-4" style="max-width: 720px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h3 mb-0"><i class="bi bi-person-plus me-2" aria-hidden="true"></i>Create account</h1>
+      <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_login') }}"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign in</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Registration — step by step</div>
+      <div class="card-body">
+        {{ form_start(form, { attr: { id: 'signup-stepper-form', novalidate: 'novalidate' } }) }}
+          {{ form_errors(form) }}
+
+          <div class="register-stepper-nav register-stepper-nav--two" id="register-stepper-nav" role="tablist" aria-label="Registration steps">
+            <div class="register-stepper-item active" data-stepper-dot="1" id="stepper-dot-1">
+              <div class="register-stepper-badge" aria-hidden="true">1</div>
+              <div class="register-stepper-label">Account</div>
+            </div>
+            <div class="register-stepper-item" data-stepper-dot="2" id="stepper-dot-2">
+              <div class="register-stepper-badge" aria-hidden="true">2</div>
+              <div class="register-stepper-label">Profile</div>
+            </div>
+            <div class="register-stepper-item d-none" data-stepper-dot="3" id="stepper-dot-3" data-organizer-stepper="1">
+              <div class="register-stepper-badge" aria-hidden="true">3</div>
+              <div class="register-stepper-label">Organizer</div>
+            </div>
+          </div>
+
+          <div class="register-step-panel" data-register-step="1" role="tabpanel" aria-labelledby="stepper-dot-1">
+            <h2 class="h6 text-body-secondary mb-3"><i class="bi bi-key me-1" aria-hidden="true"></i>Account &amp; credentials</h2>
+            {{ form_row(form.fullName) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.type) }}
+            {{ form_row(form.plainPassword) }}
+            <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+              <a class="btn btn-outline-secondary" href="{{ path('app_home') }}">Cancel</a>
+              <button type="button" class="btn btn-primary js-register-next" data-next="2">
+                Next <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="register-step-panel" data-register-step="2" role="tabpanel" aria-labelledby="stepper-dot-2" hidden>
+            <h2 class="h6 text-body-secondary mb-3"><i class="bi bi-person-vcard me-1" aria-hidden="true"></i>Additional information</h2>
+            {{ form_row(form.phoneNumber) }}
+            {{ form_row(form.address) }}
+            {{ form_row(form.profession) }}
+            {{ form_row(form.birthDate) }}
+            <div class="d-flex flex-wrap justify-content-between gap-2 mt-4">
+              <button type="button" class="btn btn-outline-secondary js-register-prev" data-prev="1">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back
+              </button>
+              <div class="d-flex flex-wrap gap-2 ms-auto">
+                <button type="button" class="btn btn-primary js-register-next js-step-next-to-organizer d-none" data-next="3">
+                  Next <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                </button>
+                <button type="submit" class="btn btn-success js-step-submit-participant" id="step2-register-btn-participant">
+                  <i class="bi bi-check-lg me-1" aria-hidden="true"></i>Register
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="register-step-panel" data-register-step="3" role="tabpanel" aria-labelledby="stepper-dot-3" data-organizer-panel="1" hidden>
+            <h2 class="h6 text-body-secondary mb-3"><i class="bi bi-share me-1" aria-hidden="true"></i>Organizer links <span class="fw-normal">(optional)</span></h2>
+            <p class="small text-body-secondary mb-3" id="organizer-hint">Add your public links so we can review your organizer profile.</p>
+            {{ form_row(form.website) }}
+            {{ form_row(form.facebook) }}
+            {{ form_row(form.instagram) }}
+            {{ form_row(form.whatsapp) }}
+            <div class="d-flex flex-wrap justify-content-between gap-2 mt-4">
+              <button type="button" class="btn btn-outline-secondary js-register-prev" data-prev="2">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Back
+              </button>
+              <button class="btn btn-success" type="submit" id="signup-submit-btn-organizer">
+                <i class="bi bi-check-lg me-1" aria-hidden="true"></i>Register
+              </button>
+            </div>
+          </div>
+
+          {# CSRF and any extra fields Symfony adds #}
+          <div class="visually-hidden" aria-hidden="true">
+            {{ form_rest(form) }}
+          </div>
+        {{ form_end(form, { render_rest: false }) }}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var form = document.getElementById('signup-stepper-form');
+      if (!form) return;
+
+      var typeSelect = form.querySelector('select[name$="[type]"]');
+      var nav = document.getElementById('register-stepper-nav');
+      var dot3 = document.getElementById('stepper-dot-3');
+      var btnNextToOrg = form.querySelector('.js-step-next-to-organizer');
+      var btnParticipantSubmit = document.getElementById('step2-register-btn-participant');
+
+      var current = 1;
+
+      function isOrganizer() {
+        return typeSelect && typeSelect.value === 'organizer';
+      }
+
+      function maxStep() {
+        return isOrganizer() ? 3 : 2;
+      }
+
+      function panel(n) {
+        return form.querySelector('[data-register-step="' + n + '"]');
+      }
+
+      function applyOrganizerMode() {
+        var org = isOrganizer();
+        if (nav) nav.classList.toggle('register-stepper-nav--two', !org);
+        if (dot3) dot3.classList.toggle('d-none', !org);
+        if (btnNextToOrg) btnNextToOrg.classList.toggle('d-none', !org);
+        if (btnParticipantSubmit) btnParticipantSubmit.classList.toggle('d-none', org);
+        if (!org && current === 3) setStep(2);
+      }
+
+      function setStep(n) {
+        var max = maxStep();
+        if (n > max) n = max;
+        if (n < 1) n = 1;
+        current = n;
+
+        for (var s = 1; s <= 3; s++) {
+          var p = panel(s);
+          if (!p) continue;
+          if (s === 3 && !isOrganizer()) {
+            p.setAttribute('hidden', 'hidden');
+            p.setAttribute('aria-hidden', 'true');
+            continue;
+          }
+          if (s === n) {
+            p.removeAttribute('hidden');
+            p.setAttribute('aria-hidden', 'false');
+          } else {
+            p.setAttribute('hidden', 'hidden');
+            p.setAttribute('aria-hidden', 'true');
+          }
+        }
+
+        for (var d = 1; d <= 3; d++) {
+          var dot = document.querySelector('[data-stepper-dot="' + d + '"]');
+          if (!dot || dot.classList.contains('d-none')) continue;
+          dot.classList.remove('active', 'done');
+          if (d < n) dot.classList.add('done');
+          else if (d === n) dot.classList.add('active');
+        }
+      }
+
+      function validateStep(n) {
+        if (n === 3 && !isOrganizer()) return true;
+        var p = panel(n);
+        if (!p) return true;
+        var fields = p.querySelectorAll('input, select, textarea');
+        for (var i = 0; i < fields.length; i++) {
+          var el = fields[i];
+          if (el.type === 'hidden' || el.disabled) continue;
+          if (typeof el.checkValidity === 'function' && !el.checkValidity()) {
+            if (typeof el.reportValidity === 'function') el.reportValidity();
+            return false;
+          }
+        }
+        return true;
+      }
+
+      form.querySelectorAll('.js-register-next').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var next = parseInt(btn.getAttribute('data-next'), 10);
+          if (!validateStep(current)) return;
+          if (isOrganizer() && next === 3) {
+            setStep(3);
+          } else if (next === 2) {
+            setStep(2);
+          }
+        });
+      });
+
+      form.querySelectorAll('.js-register-prev').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var prev = parseInt(btn.getAttribute('data-prev'), 10);
+          if (prev >= 1) setStep(prev);
+        });
+      });
+
+      if (typeSelect) {
+        typeSelect.addEventListener('change', function () {
+          applyOrganizerMode();
+          setStep(current);
+        });
+      }
+
+      form.addEventListener('submit', function (e) {
+        if (!validateStep(1)) {
+          e.preventDefault();
+          setStep(1);
+          return;
+        }
+        if (!validateStep(2)) {
+          e.preventDefault();
+          setStep(2);
+          return;
+        }
+        if (isOrganizer() && !validateStep(3)) {
+          e.preventDefault();
+          setStep(3);
+        }
+      });
+
+      applyOrganizerMode();
+      setStep(1);
+    })();
+  </script>
+{% endblock %}

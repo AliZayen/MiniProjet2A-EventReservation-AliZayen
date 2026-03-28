@@ -5,10 +5,10 @@
 {% block body %}
   <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="h3 mb-0">Users</h1>
+      <h1 class="h3 mb-0"><i class="bi bi-people me-2 text-primary" aria-hidden="true"></i>Users</h1>
       <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="{{ path('app_home') }}">Home</a>
-        <a class="btn btn-primary" href="{{ path('app_users_new') }}">New user</a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_home') }}"><i class="bi bi-house-door me-1" aria-hidden="true"></i>Home</a>
+        <a class="btn btn-primary" href="{{ path('app_users_new') }}"><i class="bi bi-person-plus me-1" aria-hidden="true"></i>New user</a>
       </div>
     </div>
 
@@ -22,6 +22,7 @@
               <th>Email</th>
               <th style="width: 160px;">Type</th>
               <th style="width: 220px;">Roles</th>
+              <th style="width: 120px;">Organizer</th>
               <th style="width: 180px;"></th>
             </tr>
           </thead>
@@ -33,15 +34,26 @@
               <td>{{ user.email }}</td>
               <td>
                 {% if user.type == 'admin' %}
-                  <span class="badge bg-danger">Admin</span>
+                  <span class="badge bg-danger"><i class="bi bi-shield-fill-check me-1" aria-hidden="true"></i>Admin</span>
                 {% elseif user.type == 'organizer' %}
-                  <span class="badge bg-info">Organizer</span>
+                  <span class="badge bg-info"><i class="bi bi-megaphone me-1" aria-hidden="true"></i>Organizer</span>
                 {% else %}
-                  <span class="badge bg-secondary">Participant</span>
+                  <span class="badge bg-secondary"><i class="bi bi-person me-1" aria-hidden="true"></i>Participant</span>
                 {% endif %}
               </td>
               <td class="small text-body-secondary">
                 {{ user.roles|join(', ') }}
+              </td>
+              <td>
+                {% if user.type == 'organizer' %}
+                  {% if user.organizerApproved %}
+                    <span class="badge bg-success">OK</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  {% endif %}
+                {% else %}
+                  —
+                {% endif %}
               </td>
               <td class="text-end">
                 <a class="btn btn-outline-primary btn-sm" href="{{ path('app_users_show', { id: user.id }) }}">Show</a>
@@ -50,7 +62,7 @@
             </tr>
           {% else %}
             <tr>
-              <td colspan="6">
+              <td colspan="7">
                 <div class="p-3">No users found.</div>
               </td>
             </tr>
