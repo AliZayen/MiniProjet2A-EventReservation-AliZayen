@@ -6,7 +6,9 @@
   <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0">Events</h1>
-      <a class="btn btn-primary" href="{{ path('app_events_new') }}">New event</a>
+      {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ORGANIZER') %}
+        <a class="btn btn-primary" href="{{ path('app_events_new') }}">New event</a>
+      {% endif %}
     </div>
 
     <form method="get" action="{{ path('app_events_index') }}" class="card card-body mb-3">
@@ -37,6 +39,47 @@
         </div>
       </div>
     </form>
+
+    {% if is_granted('ROLE_ADMIN') and pinned_events is not empty %}
+      <div class="row g-3 mb-2">
+        <div class="col-12">
+          <h2 class="h4 mt-2 mb-1">Pinned events</h2>
+          <hr class="mt-0 mb-2" />
+        </div>
+        {% for event in pinned_events %}
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 border-warning">
+              {% if event.picture %}
+                <img class="card-img-top" src="{{ event.picture }}" alt="event picture" style="object-fit: cover; height: 200px;" />
+              {% endif %}
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h2 class="h5 card-title mb-0">{{ event.title }}</h2>
+                  <div class="d-flex gap-1">
+                    <span class="badge bg-warning text-dark">Pinned</span>
+                    {% if not event.accepted %}
+                      <span class="badge bg-secondary">Pending</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="small text-body-secondary mb-2">
+                  <div>Date: {{ event.eventDate|date('m/d/Y H:i') }}</div>
+                  <div>Location: {{ event.location }}</div>
+                </div>
+                <a class="btn btn-outline-primary btn-sm" href="{{ path('app_events_show', { id: event.id }) }}">Details</a>
+                <a class="btn btn-outline-info btn-sm" href="{{ path('app_events_edit', { id: event.id }) }}">Edit</a>
+                {% if not event.accepted %}
+                  <form method="post" action="{{ path('app_events_accept', { id: event.id }) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('accept_event_' ~ event.id) }}">
+                    <button class="btn btn-outline-success btn-sm">Accept</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
     {% if events is empty %}
       <div class="alert alert-info">No events found.</div>
@@ -76,20 +119,35 @@
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <h2 class="h5 card-title mb-0">{{ event.title }}</h2>
-                  {% if status == 'today' %}
-                    <span class="badge bg-success">Today</span>
-                  {% elseif status == 'upcoming' %}
-                    <span class="badge bg-primary">Upcoming</span>
-                  {% else %}
-                    <span class="badge bg-secondary">Passed</span>
-                  {% endif %}
+                  <div class="d-flex gap-1">
+                    {% if status == 'today' %}
+                      <span class="badge bg-success">Today</span>
+                    {% elseif status == 'upcoming' %}
+                      <span class="badge bg-primary">Upcoming</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Passed</span>
+                    {% endif %}
+                    {% set canSeeApproval = is_granted('ROLE_ADMIN') or (is_granted('ROLE_ORGANIZER') and app.user and event.organizerId == app.user.id) %}
+                    {% if canSeeApproval and not event.accepted %}
+                      <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                  </div>
                 </div>
                 <div class="small text-body-secondary mb-2">
                   <div>Date: {{ event.eventDate|date('m/d/Y H:i') }}</div>
                   <div>Location: {{ event.location }}</div>
                 </div>
                 <a class="btn btn-outline-primary btn-sm" href="{{ path('app_events_show', { id: event.id }) }}">Details</a>
-                <a class="btn btn-outline-info btn-sm" href="{{ path('app_events_edit', { id: event.id }) }}">Edit</a>
+                {% set canManage = is_granted('ROLE_ADMIN') or (is_granted('ROLE_ORGANIZER') and app.user and event.organizerId == app.user.id) %}
+                {% if canManage %}
+                  <a class="btn btn-outline-info btn-sm" href="{{ path('app_events_edit', { id: event.id }) }}">Edit</a>
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN') and not event.accepted %}
+                  <form method="post" action="{{ path('app_events_accept', { id: event.id }) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('accept_event_' ~ event.id) }}">
+                    <button class="btn btn-outline-success btn-sm">Accept</button>
+                  </form>
+                {% endif %}
               </div>
             </div>
           </div>

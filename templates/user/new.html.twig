@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New user{% endblock %}
+
+{% block body %}
+  <div class="container my-4" style="max-width: 920px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h3 mb-0">Create user</h1>
+      <a class="btn btn-outline-secondary" href="{{ path('app_users_index') }}">Back</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">User information</div>
+      <div class="card-body">
+        {{ form_start(form) }}
+          {{ form_errors(form) }}
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              {{ form_row(form.fullName) }}
+            </div>
+            <div class="col-12 col-md-6">
+              {{ form_row(form.email) }}
+            </div>
+            <div class="col-12 col-md-6">
+              {{ form_row(form.type) }}
+            </div>
+            <div class="col-12 col-md-6">
+              {{ form_row(form.plainPassword) }}
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-primary">Create</button>
+            <a class="btn btn-outline-secondary" href="{{ path('app_users_index') }}">Cancel</a>
+          </div>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

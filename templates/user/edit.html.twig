@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit user{% endblock %}
+
+{% block body %}
+  <div class="container my-4" style="max-width: 920px;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h3 mb-0">Edit user</h1>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{{ path('app_users_show', { id: userEntity.id }) }}">Back</a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_users_index') }}">All users</a>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header">User information</div>
+      <div class="card-body">
+        {{ form_start(form) }}
+          {{ form_errors(form) }}
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              {{ form_row(form.fullName) }}
+            </div>
+            <div class="col-12 col-md-6">
+              {{ form_row(form.email) }}
+            </div>
+            <div class="col-12 col-md-6">
+              {{ form_row(form.type) }}
+            </div>
+            <div class="col-12 col-md-6">
+              {{ form_row(form.plainPassword) }}
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-info">Save changes</button>
+            <a class="btn btn-outline-secondary" href="{{ path('app_users_show', { id: userEntity.id }) }}">Cancel</a>
+          </div>
+        {{ form_end(form) }}
+      </div>
+    </div>
+
+    <div class="card border-danger">
+      <div class="card-header text-bg-danger">Danger zone</div>
+      <div class="card-body">
+        <p class="mb-2">Delete this user permanently.</p>
+        <form method="post" action="{{ path('app_users_delete', { id: userEntity.id }) }}" onsubmit="return confirm('Delete this user?');">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ userEntity.id) }}">
+          <button class="btn btn-danger">Delete user</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

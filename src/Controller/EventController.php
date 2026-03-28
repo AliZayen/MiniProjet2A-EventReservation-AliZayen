@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Event;
+use App\Entity\User;
 use App\Form\EventType;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,6 +18,8 @@ final class EventController extends AbstractController
     public function index(Request $request, EventRepository $repo): Response
     {
         $events = $repo->findBy([], ['event_date' => 'ASC']);
+        $currentUser = $this->getUser();
+        $currentUserId = $currentUser instanceof User ? $currentUser->getId() : null;
         $now = new \DateTimeImmutable();
         $today = $now->format('Y-m-d');
         $status = strtolower(trim((string) $request->query->get('status', 'all')));
@@ -26,10 +29,22 @@ final class EventController extends AbstractController
             $status = 'all';
         }
 
-        if ($status !== 'all' || $search !== '') {
+        if ($status !== 'all' || $search !== '' || !$this->isGranted('ROLE_ADMIN')) {
             $events = array_values(array_filter(
                 $events,
-                static function (Event $event) use ($now, $today, $status, $search): bool {
+                function (Event $event) use ($now, $today, $status, $search, $currentUserId): bool {
+                    // Visibility rules:
+                    // - admin: all events
+                    // - organizer: accepted events + own pending events
+                    // - participant: only accepted events
+                    if (!$this->isGranted('ROLE_ADMIN')) {
+                        if (!$event->isAccepted()) {
+                            if (!$this->isGranted('ROLE_ORGANIZER') || $event->getOrganizerId() !== $currentUserId) {
+                                return false;
+                            }
+                        }
+                    }
+
                     $eventDate = $event->getEventDate();
                     $eventDay = $eventDate->format('Y-m-d');
 
@@ -93,8 +108,22 @@ final class EventController extends AbstractController
             }
         );
 
+        $pinnedEvents = [];
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $pinnedEvents = array_values(array_filter(
+                $events,
+                static fn (Event $event): bool => $event->isPinned()
+            ));
+
+            $events = array_values(array_filter(
+                $events,
+                static fn (Event $event): bool => !$event->isPinned()
+            ));
+        }
+
         return $this->render('event/index.html.twig', [
             'events' => $events,
+            'pinned_events' => $pinnedEvents,
             'filters' => [
                 'status' => $status,
                 'q' => $search,
@@ -105,11 +134,41 @@ final class EventController extends AbstractController
     #[Route('/events/new', name: 'app_events_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
+        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_ORGANIZER')) {
+            throw $this->createAccessDeniedException('Only organizers and admins can create events.');
+        }
+
         $event = new Event();
-        $form = $this->createForm(EventType::class, $event);
+        $canEditOrganizer = $this->isGranted('ROLE_ADMIN');
+
+        if (!$canEditOrganizer) {
+            $currentUser = $this->getUser();
+            if ($currentUser instanceof User) {
+                $event->setOrgnizer((string) $currentUser->getFullName());
+            }
+        }
+
+        $form = $this->createForm(EventType::class, $event, [
+            'can_edit_organizer' => $canEditOrganizer,
+            'can_pin_event' => $canEditOrganizer,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Organizer cannot spoof another organizer name.
+            $currentUser = $this->getUser();
+            $currentUserId = $currentUser instanceof User ? $currentUser->getId() : null;
+            if (!$canEditOrganizer) {
+                if ($currentUser instanceof User) {
+                    $event->setOrgnizer((string) $currentUser->getFullName());
+                }
+            }
+            $event->setOrganizerId($currentUserId);
+            $event->setAccepted(false);
+            if (!$canEditOrganizer) {
+                $event->setPinned(false);
+            }
+
             $em->persist($event);
             $em->flush();
 
@@ -121,21 +180,63 @@ final class EventController extends AbstractController
         ]);
     }
 
+    #[Route('/events/my', name: 'app_events_my', methods: ['GET'])]
+    public function myEvents(EventRepository $repo): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ORGANIZER');
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Organizer session not found.');
+        }
+
+        $events = $repo->findBy(
+            ['organizerId' => $user->getId()],
+            ['event_date' => 'ASC']
+        );
+
+        return $this->render('event/my_events.html.twig', [
+            'approved_events' => array_values(array_filter($events, static fn (Event $event): bool => $event->isAccepted())),
+            'pending_events' => array_values(array_filter($events, static fn (Event $event): bool => !$event->isAccepted())),
+        ]);
+    }
+
     #[Route('/events/{id}', name: 'app_events_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Event $event): Response
     {
+        if (!$event->isAccepted() && !$this->canManageEvent($event)) {
+            throw $this->createAccessDeniedException('You cannot access this event yet.');
+        }
+
         return $this->render('event/eventDetails.html.twig', [
             'event' => $event,
+            'can_manage_event' => $this->canManageEvent($event),
+            'can_see_approval' => $this->isGranted('ROLE_ADMIN') || $this->canManageEvent($event),
         ]);
     }
 
     #[Route('/events/{id}/edit', name: 'app_events_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function edit(Request $request, Event $event, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(EventType::class, $event);
+        if (!$this->canManageEvent($event)) {
+            throw $this->createAccessDeniedException('You cannot edit this event.');
+        }
+
+        $canEditOrganizer = $this->isGranted('ROLE_ADMIN');
+        $form = $this->createForm(EventType::class, $event, [
+            'can_edit_organizer' => $canEditOrganizer,
+            'can_pin_event' => $canEditOrganizer,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$canEditOrganizer) {
+                $currentUser = $this->getUser();
+                if ($currentUser instanceof User) {
+                    $event->setOrgnizer((string) $currentUser->getFullName());
+                    $event->setOrganizerId($currentUser->getId());
+                }
+            }
             $em->flush();
 
             return $this->redirectToRoute('app_events_show', ['id' => $event->getId()]);
@@ -150,6 +251,10 @@ final class EventController extends AbstractController
     #[Route('/events/{id}', name: 'app_events_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, Event $event, EntityManagerInterface $em): Response
     {
+        if (!$this->canManageEvent($event)) {
+            throw $this->createAccessDeniedException('You cannot delete this event.');
+        }
+
         $token = (string) $request->request->get('_token');
         if ($this->isCsrfTokenValid('delete_event_'.$event->getId(), $token)) {
             $em->remove($event);
@@ -157,5 +262,37 @@ final class EventController extends AbstractController
         }
 
         return $this->redirectToRoute('app_events_index');
+    }
+
+    #[Route('/events/{id}/accept', name: 'app_events_accept', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function accept(Request $request, Event $event, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $token = (string) $request->request->get('_token');
+        if ($this->isCsrfTokenValid('accept_event_'.$event->getId(), $token)) {
+            $event->setAccepted(true);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_events_show', ['id' => $event->getId()]);
+    }
+
+    private function canManageEvent(Event $event): bool
+    {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return true;
+        }
+
+        if (!$this->isGranted('ROLE_ORGANIZER')) {
+            return false;
+        }
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        return $event->getOrganizerId() === $user->getId();
     }
 }

@@ -147,6 +147,7 @@ class EventFixtures extends Fixture
             }
             $event->setPlanning($row['planning']);
             $event->setDetails($row['details']);
+            $event->setAccepted(true);
             $manager->persist($event);
         }
 

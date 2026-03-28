@@ -11,6 +11,16 @@
           <div><strong>Date:</strong> {{ event.eventDate|date('m/d/Y H:i') }}</div>
           <div><strong>Location:</strong> {{ event.location }}</div>
           <div><strong>Organizer:</strong> {{ event.orgnizer }}</div>
+          {% if can_see_approval %}
+            <div>
+              <strong>Approval:</strong>
+              {% if event.accepted %}
+                <span class="badge bg-success">Accepted</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Pending admin approval</span>
+              {% endif %}
+            </div>
+          {% endif %}
           <div><strong>Ticket prices:</strong> {{ event.ticketPrices ?: '—' }}</div>
           <div>
             <strong>Tags:</strong>
@@ -28,8 +38,16 @@
       </div>
 
       <div class="d-flex gap-2">
-        <a class="btn btn-outline-light" href="{{ path('app_events_index') }}">Back</a>
-        <a class="btn btn-info" href="{{ path('app_events_edit', { id: event.id }) }}">Edit</a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_events_index') }}">Back</a>
+        {% if can_manage_event %}
+          <a class="btn btn-info" href="{{ path('app_events_edit', { id: event.id }) }}">Edit</a>
+        {% endif %}
+        {% if is_granted('ROLE_ADMIN') and not event.accepted %}
+          <form method="post" action="{{ path('app_events_accept', { id: event.id }) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('accept_event_' ~ event.id) }}">
+            <button class="btn btn-success">Accept</button>
+          </form>
+        {% endif %}
       </div>
     </div>
 
@@ -51,9 +69,11 @@
       </div>
     </div>
 
-    <form method="post" action="{{ path('app_events_delete', { id: event.id }) }}" onsubmit="return confirm('Delete this event?');">
-      <input type="hidden" name="_token" value="{{ csrf_token('delete_event_' ~ event.id) }}">
-      <button class="btn btn-danger">Delete</button>
-    </form>
+    {% if can_manage_event %}
+      <form method="post" action="{{ path('app_events_delete', { id: event.id }) }}" onsubmit="return confirm('Delete this event?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete_event_' ~ event.id) }}">
+        <button class="btn btn-danger">Delete</button>
+      </form>
+    {% endif %}
   </div>
 {% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My events{% endblock %}
+
+{% block body %}
+  <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1 class="h3 mb-0">My events</h1>
+      <a class="btn btn-primary" href="{{ path('app_events_new') }}">New event</a>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-header">Approved events</div>
+          <div class="card-body">
+            {% if approved_events is empty %}
+              <div class="alert alert-secondary mb-0">No approved events yet.</div>
+            {% else %}
+              <div class="list-group">
+                {% for event in approved_events %}
+                  <a href="{{ path('app_events_show', { id: event.id }) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span>
+                      <strong>{{ event.title }}</strong><br>
+                      <small class="text-body-secondary">{{ event.eventDate|date('m/d/Y H:i') }}</small>
+                    </span>
+                    <span class="badge bg-success">Approved</span>
+                  </a>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-header">Pending approval</div>
+          <div class="card-body">
+            {% if pending_events is empty %}
+              <div class="alert alert-secondary mb-0">No pending events.</div>
+            {% else %}
+              <div class="list-group">
+                {% for event in pending_events %}
+                  <a href="{{ path('app_events_show', { id: event.id }) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span>
+                      <strong>{{ event.title }}</strong><br>
+                      <small class="text-body-secondary">{{ event.eventDate|date('m/d/Y H:i') }}</small>
+                    </span>
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  </a>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

@@ -52,13 +52,25 @@
                         <div class="form-text">Tip: paste a public image URL.</div>
                       </td>
                     </tr>
-                    <tr>
-                      <th>{{ form_label(form.orgnizer) }}</th>
-                      <td>
-                        {{ form_widget(form.orgnizer) }}
-                        {{ form_errors(form.orgnizer) }}
-                      </td>
-                    </tr>
+                    {% if form.orgnizer is defined %}
+                      <tr>
+                        <th>{{ form_label(form.orgnizer) }}</th>
+                        <td>
+                          {{ form_widget(form.orgnizer) }}
+                          {{ form_errors(form.orgnizer) }}
+                        </td>
+                      </tr>
+                    {% endif %}
+                    {% if form.pinned is defined %}
+                      <tr>
+                        <th>{{ form_label(form.pinned) }}</th>
+                        <td>
+                          {{ form_widget(form.pinned) }}
+                          {{ form_errors(form.pinned) }}
+                          <div class="form-text">{{ form_help(form.pinned) }}</div>
+                        </td>
+                      </tr>
+                    {% endif %}
                     <tr>
                       <th>{{ form_label(form.ticketPrices) }}</th>
                       <td>

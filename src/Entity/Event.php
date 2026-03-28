@@ -32,6 +32,15 @@ class Event
     #[ORM\Column(length: 255)]
     private ?string $orgnizer = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $organizerId = null;
+
+    #[ORM\Column]
+    private bool $accepted = false;
+
+    #[ORM\Column]
+    private bool $pinned = false;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $planning = null;
 
@@ -119,6 +128,42 @@ class Event
     public function setOrgnizer(string $orgnizer): static
     {
         $this->orgnizer = $orgnizer;
+
+        return $this;
+    }
+
+    public function getOrganizerId(): ?int
+    {
+        return $this->organizerId;
+    }
+
+    public function setOrganizerId(?int $organizerId): static
+    {
+        $this->organizerId = $organizerId;
+
+        return $this;
+    }
+
+    public function isAccepted(): bool
+    {
+        return $this->accepted;
+    }
+
+    public function setAccepted(bool $accepted): static
+    {
+        $this->accepted = $accepted;
+
+        return $this;
+    }
+
+    public function isPinned(): bool
+    {
+        return $this->pinned;
+    }
+
+    public function setPinned(bool $pinned): static
+    {
+        $this->pinned = $pinned;
 
         return $this;
     }
