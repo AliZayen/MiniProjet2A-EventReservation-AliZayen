@@ -27,6 +27,10 @@ final class SignupController extends AbstractController
         $form = $this->createForm(SignupType::class, $user);
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('warning', 'Please correct the errors below and try again.');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $plain = (string) $form->get('plainPassword')->getData();
             $user->setPassword($hasher->hashPassword($user, $plain));

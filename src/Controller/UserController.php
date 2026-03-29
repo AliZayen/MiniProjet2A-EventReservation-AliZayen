@@ -29,6 +29,10 @@ final class UserController extends AbstractController
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('warning', 'Please correct the errors in the form and try again.');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = (string) $form->get('plainPassword')->getData();
             if ($plainPassword === '') {
@@ -37,6 +41,8 @@ final class UserController extends AbstractController
                 $user->setPassword($hasher->hashPassword($user, $plainPassword));
                 $em->persist($user);
                 $em->flush();
+
+                $this->addFlash('success', 'User created successfully.');
 
                 return $this->redirectToRoute('app_users_show', ['id' => $user->getId()]);
             }
@@ -61,6 +67,10 @@ final class UserController extends AbstractController
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('warning', 'Please correct the errors in the form and try again.');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = (string) $form->get('plainPassword')->getData();
             if ($plainPassword !== '') {
@@ -68,6 +78,8 @@ final class UserController extends AbstractController
             }
 
             $em->flush();
+
+            $this->addFlash('success', 'User updated successfully.');
 
             return $this->redirectToRoute('app_users_show', ['id' => $user->getId()]);
         }
@@ -92,6 +104,8 @@ final class UserController extends AbstractController
             $user->setOrganizerApproved(true);
             $em->flush();
             $this->addFlash('success', 'Organizer account approved.');
+        } else {
+            $this->addFlash('danger', 'Could not approve the organizer. Please try again.');
         }
 
         return $this->redirectToRoute('app_users_show', ['id' => $user->getId()]);

@@ -9,10 +9,10 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     </head>
-    <body>
-        <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <body class="d-flex flex-column min-vh-100 bg-body">
+        <nav class="navbar navbar-expand-lg bg-dark flex-shrink-0" data-bs-theme="dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ path('app_home') }}">MyEvent</a>
+            <a class="navbar-brand" href="{{ path('app_home') }}"><img src="logo.png" height="30px"></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
@@ -26,12 +26,12 @@
                 </li>
                 {% if is_granted('ROLE_PARTICIPANT') %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ path('app_registrations_my') }}"><i class="bi bi-bookmark-check me-1" aria-hidden="true"></i>My registrations</a>
+                  <a class="nav-link" href="{{ path('app_registrations_my') }}">My registrations</a>
                 </li>
                 {% endif %}
                 {% if is_granted('ROLE_ORGANIZER') %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ path('app_events_my') }}"><i class="bi bi-collection me-1" aria-hidden="true"></i>My events</a>
+                  <a class="nav-link" href="{{ path('app_events_my') }}">My events</a>
                 </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN') %}
@@ -42,6 +42,9 @@
                   <a class="nav-link" href="{{ path('app_users_index') }}">Users</a>
                 </li>
                 {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ path('app_portfolio_index') }}">Portfolio</a>
+                  </li>
             </ul>
 
             <div class="d-flex align-items-center gap-2">
@@ -59,17 +62,89 @@
         </div>
         </nav>
 
-        {% for label, messages in app.flashes %}
-          {% for message in messages %}
-            <div class="container mt-3">
-              <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1085" aria-live="polite" aria-atomic="true">
+          {% for label, messages in app.flashes %}
+            {% for message in messages %}
+              {% set kind = label == 'error' ? 'danger' : label %}
+              <div
+                class="toast align-items-center border-0 mb-2 shadow {% if kind == 'warning' %}text-bg-warning text-dark{% else %}text-bg-{{ kind }}{% endif %}"
+                role="alert"
+                data-bs-delay="6500"
+                data-bs-autohide="true"
+              >
+                <div class="d-flex">
+                  <div class="toast-body d-flex align-items-start gap-2">
+                    {% if kind == 'success' %}
+                      <i class="bi bi-check-circle-fill flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    {% elseif kind == 'danger' %}
+                      <i class="bi bi-exclamation-octagon-fill flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    {% elseif kind == 'warning' %}
+                      <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    {% else %}
+                      <i class="bi bi-info-circle-fill flex-shrink-0 mt-1" aria-hidden="true"></i>
+                    {% endif %}
+                    <span>{{ message }}</span>
+                  </div>
+                  <button type="button" class="btn-close {% if kind != 'warning' %}btn-close-white{% endif %} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+              </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <main class="flex-grow-1 d-flex flex-column">
+        {% block body %}{% endblock %}
+        </main>
+
+        <footer class="mt-auto flex-shrink-0 bg-light border-top border-secondary text-white-50">
+          <div class="container py-4">
+            <div class="row g-4 align-items-start">
+              <div class="col-md-4">
+                <div class="fw-bold text-white mb-2">MyEvent</div>
+                <p class="small mb-0 lh-base">Plan, publish, and join events in one place — built for organizers and participants.</p>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="text-uppercase small fw-semibold text-white-50 mb-2">Explore</div>
+                <ul class="list-unstyled small mb-0">
+                  <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_home') }}">Home</a></li>
+                  <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_events_index') }}">Events</a></li>
+                  <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_portfolio_index') }}">Portfolio</a></li>
+                </ul>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="text-uppercase small fw-semibold text-white-50 mb-2">Account</div>
+                <ul class="list-unstyled small mb-0">
+                  {% if app.user %}
+                    {% if is_granted('ROLE_PARTICIPANT') %}
+                      <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_registrations_my') }}">My registrations</a></li>
+                    {% endif %}
+                    {% if is_granted('ROLE_ORGANIZER') %}
+                      <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_events_my') }}">My events</a></li>
+                    {% endif %}
+                    {% if is_granted('ROLE_ADMIN') %}
+                      <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_admin_registrations') }}">All registrations</a></li>
+                      <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_users_index') }}">Users</a></li>
+                    {% endif %}
+                  {% else %}
+                    <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_login') }}">Sign in</a></li>
+                    <li class="mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="{{ path('app_register') }}">Create account</a></li>
+                  {% endif %}
+                </ul>
               </div>
             </div>
-          {% endfor %}
-        {% endfor %}
+            <hr class="border-secondary my-3 opacity-50">
+            <p class="text-center small mb-0">&copy; {{ 'now'|date('Y') }} MyEvent. All rights reserved.</p>
+          </div>
+        </footer>
 
-        {% block body %}{% endblock %}
+        <script>
+          window.addEventListener('load', function () {
+            document.querySelectorAll('#toast-container .toast').forEach(function (el) {
+              if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+                bootstrap.Toast.getOrCreateInstance(el).show();
+              }
+            });
+          });
+        </script>
     </body>
 </html>

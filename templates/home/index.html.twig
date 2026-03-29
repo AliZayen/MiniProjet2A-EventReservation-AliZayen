@@ -1,11 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Home — MyEvent{% endblock %}
 
 {% block body %}
-  {% if nearestEvents is not empty %}
-    <div id="nearestEventsCarousel" class="carousel slide" data-bs-ride="carousel">
-      <div class="carousel-indicators">
+{% if nearestEvents is not empty %}
+  <div class="container my-5">
+    <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-3">
+      <div>
+        <h2 class="h4 mb-1">Happening soon</h2>
+        <p class="text-body-secondary mb-0 small">A quick look at the next events on the calendar.</p>
+      </div>
+      <a class="btn btn-sm btn-outline-primary" href="{{ path('app_events_index') }}">View all</a>
+    </div>
+    <div id="nearestEventsCarousel" class="carousel slide shadow rounded-4 overflow-hidden border border-secondary" data-bs-ride="carousel">
+      <div class="carousel-indicators mb-0">
         {% for event in nearestEvents %}
           <button
             type="button"
@@ -22,23 +30,29 @@
         {% for event in nearestEvents %}
           <div class="carousel-item {{ loop.first ? 'active' : '' }}">
             {% if event.picture %}
-              <img src="{{ event.picture }}" class="d-block w-100" alt="{{ event.title }}" style="height: 420px; object-fit: cover;" />
+              <img src="{{ event.picture }}" class="d-block w-100" alt="{{ event.title }}" style="height: min(52vh, 420px); object-fit: cover;" />
             {% else %}
-              <div class="d-block w-100 bg-secondary" style="height: 420px;"></div>
+              <div class="d-block w-100 bg-secondary d-flex align-items-center justify-content-center" style="height: min(52vh, 420px);">
+                <i class="bi bi-image display-1 text-white-50" aria-hidden="true"></i>
+              </div>
             {% endif %}
 
-            <div class="carousel-caption d-none d-md-block text-start">
-              <h2 class="h3">{{ event.title }}</h2>
-              <p class="mb-2">
-                {{ event.eventDate|date('m/d/Y H:i') }} — {{ event.location }}
+            <div class="carousel-caption text-start pb-4 px-5 px-md-6 rounded-top-4" style="background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 40%); left: 0; right: 0; bottom: 0;">
+              <h3 class="h4 mb-2">{{ event.title }}</h3>
+              <p class="mb-3 small text-white-50">
+                <i class="bi bi-clock me-1" aria-hidden="true"></i>{{ event.eventDate|date('M j, Y · g:i A') }}
+                <span class="mx-2">·</span>
+                <i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ event.location }}
               </p>
-              <a class="btn btn-primary" href="{{ path('app_events_show', { id: event.id }) }}"><i class="bi bi-eye me-1" aria-hidden="true"></i>View details</a>
+              <a class="btn btn-primary" href="{{ path('app_events_show', { id: event.id }) }}">
+                <i class="bi bi-arrow-right-circle me-1" aria-hidden="true"></i>View details
+              </a>
             </div>
           </div>
         {% endfor %}
       </div>
 
-      <button class="carousel-control-prev" type="button" data-bs-target="#nearestEventsCarousel" data-bs-slide="prev">
+      <button class="carousel-control-prev px-2 mx-2" type="button" data-bs-target="#nearestEventsCarousel" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Previous</span>
       </button>
@@ -47,18 +61,205 @@
         <span class="visually-hidden">Next</span>
       </button>
     </div>
-  {% else %}
-    <div class="container my-4">
-      <div class="alert alert-info mb-0"><i class="bi bi-info-circle me-2" aria-hidden="true"></i>No upcoming events yet.</div>
+  </div>
+{% else %}
+  <div class="container my-5">
+    <div class="alert alert-info border-0 shadow-sm mb-0 d-flex align-items-center gap-3">
+      <i class="bi bi-calendar-x fs-3 flex-shrink-0" aria-hidden="true"></i>
+      <div>
+        <strong>No upcoming events yet.</strong>
+        <span class="d-block small">Check back soon—or explore the full list in case new items were added.</span>
+      </div>
+      <a class="btn btn-primary ms-auto flex-shrink-0 d-none d-sm-inline-flex" href="{{ path('app_events_index') }}">Events</a>
+    </div>
+  </div>
+{% endif %}
+  <section class="border-bottom border-secondary bg-body-light">
+    <div class="container py-5">
+      <div class="row d-flex justify-content-between align-items-center">
+        <div class="col-lg-7">
+          <p class="text-primary fw-semibold mb-2 small text-uppercase" style="letter-spacing: 0.08em;">Events made simple</p>
+          <h1 class="display-5 fw-bold mb-3">Discover experiences worth showing up for</h1>
+          <p class="lead text-body-secondary mb-4">
+            Browse upcoming events, reserve your spot in seconds, and stay organized—whether you are attending or hosting.
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary btn-lg px-4" href="{{ path('app_events_index') }}">
+              <i class="bi bi-calendar-event me-2" aria-hidden="true"></i>Browse events
+            </a>
+            {% if app.user %}
+              {% if is_granted('ROLE_ADMIN') %}
+                <a class="btn btn-outline-dark btn-lg px-4" href="{{ path('app_admin_registrations') }}">
+                  <i class="bi bi-bookmark-check me-2" aria-hidden="true"></i>View registrations
+                </a>
+              {% endif %}
+              {% if is_granted('ROLE_PARTICIPANT') %}
+              <li class="nav-item">
+                <a class="btn btn-outline-dark btn-lg px-4" href="{{ path('app_registrations_my') }}">
+                  <i class="bi bi-bookmark-check me-2" aria-hidden="true"></i>View registrations
+                </a>
+              </li>
+              {% endif %}
+              {% if is_granted('ROLE_ORGANIZER') %}
+              <li class="nav-item">
+                <a class="btn btn-outline-dark btn-lg px-4" href="{{ path('app_events_my') }}">
+                  <i class="bi bi-bookmark-check me-2" aria-hidden="true"></i>View registrations
+                </a>
+              </li>
+              {% endif %}
+            {% else %}
+              <a class="btn btn-light btn-lg px-4" href="{{ path('app_register') }}">
+                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Create an account
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="row g-3 text-center text-lg-center">
+            <div class="col-4 col-lg-12">
+              <div class="p-3 rounded-3 bg-light border border-secondary h-100">
+                <div class="h2 fw-bold text-primary mb-0">{{ stats.events }}</div>
+                <div class="small text-body-secondary">Events listed</div>
+              </div>
+            </div>
+            <div class="col-4 col-lg-12">
+              <div class="p-3 rounded-3 bg-light border border-secondary h-100">
+                <div class="h2 fw-bold text-info mb-0">{{ stats.registrations }}</div>
+                <div class="small text-body-secondary">Registrations</div>
+              </div>
+            </div>
+            <div class="col-4 col-lg-12">
+              <div class="p-3 rounded-3 bg-light border border-secondary h-100">
+                <div class="h2 fw-bold text-success mb-0">{{ stats.users }}</div>
+                <div class="small text-body-secondary">Community members</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <div class="container py-5 border-top border-secondary">
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="p-4 h-100 rounded-4 border border-secondary bg-light">
+          <div class="text-primary mb-3"><i class="bi bi-compass fs-1" aria-hidden="true"></i></div>
+          <h3 class="h5">Discover</h3>
+          <p class="text-body-secondary small mb-0">Filter and browse events in one place—dates, locations, and details at a glance.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 h-100 rounded-4 border border-secondary bg-light">
+          <div class="text-info mb-3"><i class="bi bi-ticket-perforated fs-1" aria-hidden="true"></i></div>
+          <h3 class="h5">Register</h3>
+          <p class="text-body-secondary small mb-0">Secure your place quickly and track confirmations from your account.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4 h-100 rounded-4 border border-secondary bg-light">
+          <div class="text-success mb-3"><i class="bi bi-megaphone fs-1" aria-hidden="true"></i></div>
+          <h3 class="h5">Organize</h3>
+          <p class="text-body-secondary small mb-0">Organizers can publish and manage events with a workflow built for clarity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if nearestEvents is not empty %}
+    <div class="container pb-5">
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
+        <div>
+          <h2 class="h4 mb-1">Featured upcoming events</h2>
+          <p class="text-body-secondary mb-0 small">Hand-picked from the nearest dates on the schedule.</p>
+        </div>
+      </div>
+      <div class="row g-4">
+        {% for event in nearestEvents %}
+          {% set now = 'now'|date('Y-m-d') %}
+          {% set eventDay = event.eventDate|date('Y-m-d') %}
+          {% if eventDay == now %}
+            {% set status = 'today' %}
+          {% elseif eventDay > now %}
+            {% set status = 'upcoming' %}
+          {% else %}
+            {% set status = 'passed' %}
+          {% endif %}
+
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 border-secondary shadow-sm overflow-hidden">
+              {% if event.picture %}
+                <img class="card-img-top" src="{{ event.picture }}" alt="" style="object-fit: cover; height: 200px;" />
+              {% else %}
+                <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                  <i class="bi bi-image text-white-50 fs-2" aria-hidden="true"></i>
+                </div>
+              {% endif %}
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                  <h3 class="h5 card-title mb-0">{{ event.title }}</h3>
+                  <div class="d-flex flex-wrap gap-1 justify-content-end">
+                    {% if status == 'today' %}
+                      <span class="badge bg-success"><i class="bi bi-sun-fill me-1" aria-hidden="true"></i>Today</span>
+                    {% elseif status == 'upcoming' %}
+                      <span class="badge bg-primary"><i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>Upcoming</span>
+                    {% else %}
+                      <span class="badge bg-secondary"><i class="bi bi-calendar-x me-1" aria-hidden="true"></i>Past</span>
+                    {% endif %}
+                    {% set canSeeApproval = is_granted('ROLE_ADMIN') or (is_granted('ROLE_ORGANIZER') and app.user and event.organizerId == app.user.id) %}
+                    {% if canSeeApproval and not event.accepted %}
+                      <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="small text-body-secondary mb-3">
+                  <div><i class="bi bi-clock me-1" aria-hidden="true"></i>{{ event.eventDate|date('M j, Y · g:i A') }}</div>
+                  <div><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ event.location }}</div>
+                </div>
+                <div class="mt-auto d-flex flex-wrap gap-2">
+                  <a class="btn btn-primary btn-sm" href="{{ path('app_events_show', { id: event.id }) }}"><i class="bi bi-eye me-1" aria-hidden="true"></i>Details</a>
+                  {% set canManage = is_granted('ROLE_ADMIN') or (is_granted('ROLE_ORGANIZER') and app.user and event.organizerId == app.user.id) %}
+                  {% if canManage %}
+                    <a class="btn btn-outline-info btn-sm" href="{{ path('app_events_edit', { id: event.id }) }}"><i class="bi bi-pencil me-1" aria-hidden="true"></i>Edit</a>
+                  {% endif %}
+                  {% if is_granted('ROLE_ADMIN') and not event.accepted %}
+                    <form method="post" action="{{ path('app_events_accept', { id: event.id }) }}" class="d-inline">
+                      <input type="hidden" name="_token" value="{{ csrf_token('accept_event_' ~ event.id) }}">
+                      <button class="btn btn-outline-success btn-sm" type="submit"><i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Accept</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   {% endif %}
 
-  <div class="container my-4">
-    <h1 class="h4 mb-3">Welcome</h1>
-    <p class="text-body-secondary mb-0">
-      Check the next events in the carousel above, or browse all events.
-      <a href="{{ path('app_events_index') }}">Go to events</a>.
-    </p>
+  <div class="bg-body-light border-top border-bottom border-secondary py-5">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+          <h2 class="h4 mb-3">About MyEvent</h2>
+          <p class="text-body-secondary mb-0">
+            We built this platform to help people find meaningful gatherings and to give organizers a straightforward way to publish and manage listings.
+            From community meetups to larger experiences, our focus is clear discovery, simple registration, and tools that stay out of your way.
+          </p>
+        </div>
+        <div class="col-lg-4">
+          <div class="card border-primary bg-light">
+            <div class="card-body text-center py-4">
+              <p class="mb-3 fw-semibold">Ready to explore?</p>
+              <a class="btn btn-primary w-100 mb-2" href="{{ path('app_events_index') }}">Browse the catalog</a>
+              {% if not app.user %}
+                <a class="btn btn-link text-white-50" href="{{ path('app_login') }}">Already have an account? Sign in</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}
-

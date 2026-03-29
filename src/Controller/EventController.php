@@ -155,6 +155,10 @@ final class EventController extends AbstractController
         ]);
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('warning', 'Please correct the errors in the form and try again.');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             // Organizer cannot spoof another organizer name.
             $currentUser = $this->getUser();
@@ -172,6 +176,8 @@ final class EventController extends AbstractController
 
             $em->persist($event);
             $em->flush();
+
+            $this->addFlash('success', 'Event created successfully.');
 
             return $this->redirectToRoute('app_events_show', ['id' => $event->getId()]);
         }
@@ -240,6 +246,10 @@ final class EventController extends AbstractController
         ]);
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('warning', 'Please correct the errors in the form and try again.');
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$canEditOrganizer) {
                 $currentUser = $this->getUser();
@@ -249,6 +259,8 @@ final class EventController extends AbstractController
                 }
             }
             $em->flush();
+
+            $this->addFlash('success', 'Event updated successfully.');
 
             return $this->redirectToRoute('app_events_show', ['id' => $event->getId()]);
         }
@@ -270,6 +282,9 @@ final class EventController extends AbstractController
         if ($this->isCsrfTokenValid('delete_event_'.$event->getId(), $token)) {
             $em->remove($event);
             $em->flush();
+            $this->addFlash('success', 'Event deleted successfully.');
+        } else {
+            $this->addFlash('danger', 'Could not delete the event. Please try again.');
         }
 
         return $this->redirectToRoute('app_events_index');
@@ -284,6 +299,9 @@ final class EventController extends AbstractController
         if ($this->isCsrfTokenValid('accept_event_'.$event->getId(), $token)) {
             $event->setAccepted(true);
             $em->flush();
+            $this->addFlash('success', 'Event approved and published.');
+        } else {
+            $this->addFlash('danger', 'Could not approve the event. Please try again.');
         }
 
         return $this->redirectToRoute('app_events_show', ['id' => $event->getId()]);

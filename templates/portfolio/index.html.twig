@@ -1,0 +1,351 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Portfolio — Ali Zayen{% endblock %}
+
+{% block body %}
+  <style>
+    /* Full-bleed centered hero (landscape bg + avatar + greeting) */
+    .portfolio-hero-centered {
+      position: relative;
+      min-height: 72vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) {
+      .portfolio-hero-centered { min-height: 78vh; }
+    }
+    .portfolio-hero-centered__bg {
+      position: absolute;
+      inset: 0;
+      background-color: #0d1117;
+      background-image: url("https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80");
+      background-size: cover;
+      background-position: center;
+      filter: saturate(0.85);
+    }
+    .portfolio-hero-centered__overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.62);
+    }
+    .portfolio-hero-centered__inner {
+      position: relative;
+      z-index: 2;
+      max-width: 42rem;
+      padding: 3rem 1.5rem;
+    }
+    .portfolio-hero-centered__avatar {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+    }
+    @media (min-width: 768px) {
+      .portfolio-hero-centered__avatar {
+        width: 160px;
+        height: 160px;
+      }
+    }
+    .portfolio-hero-centered__title {
+      font-size: clamp(1.85rem, 5vw, 2.75rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .portfolio-hero-centered__subtitle {
+      font-size: 0.8rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.88);
+      margin-top: 1rem;
+      margin-bottom: 0;
+    }
+    .portfolio-accent {
+      color: var(--bs-primary);
+    }
+    .portfolio-timeline {
+      position: relative;
+      padding-left: 1.25rem;
+      border-left: 2px solid var(--bs-secondary);
+    }
+    .portfolio-timeline__dot {
+      position: absolute;
+      left: -0.4rem;
+      top: 0.35rem;
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background: var(--bs-primary);
+      box-shadow: 0 0 0 4px var(--bs-dark);
+    }
+  </style>
+
+  {# Hero — centered, full-bleed (reference style) #}
+  <section class="portfolio-hero-centered mb-0" aria-label="Introduction">
+    <div class="portfolio-hero-centered__bg" role="presentation"></div>
+    <div class="portfolio-hero-centered__overlay" role="presentation"></div>
+    <div class="portfolio-hero-centered__inner text-center mx-auto">
+      <img
+        class="portfolio-hero-centered__avatar mb-4"
+        src="https://media.licdn.com/dms/image/v2/D4E22AQGANe0V-6DTgA/feedshare-shrink_800/B4EZTYWMvqHcAg-/0/1738796486944?e=1776297600&v=beta&t=feUDh0ZqKuzcUzFBov9XPb0OY8lEYANwTqrjgUeJ6ks"
+        alt="Ali Zayen"
+        width="160"
+        height="160"
+        loading="eager"
+        fetchpriority="high"
+      >
+      <h1 class="portfolio-hero-centered__title mb-0">Hi, I&rsquo;m Ali Zayen</h1>
+      <p class="portfolio-hero-centered__subtitle">I&rsquo;m a software engineering student</p>
+    </div>
+  </section>
+
+  <div class="container py-4 py-lg-5">
+    <div class="row g-4">
+      {# About #}
+      <div class="col-lg-7">
+        <div class="card h-100 border-secondary bg-body-primary shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            <h2 class="h4 d-flex align-items-center gap-2 mb-3">
+              <span class="portfolio-accent"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+              About me
+            </h2>
+            <p class="text-body-secondary mb-0 lh-lg">
+              I am a software engineering student at the Higher Institute of Applied Sciences and Technology of Sousse. I am passionate about software development and always looking for new challenges.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {# Languages #}
+      <div class="col-lg-5">
+        <div class="card h-100 border-secondary shadow-sm">
+          <div class="card-body p-4">
+            <h2 class="h5 d-flex align-items-center gap-2 mb-3">
+              <i class="bi bi-translate text-info" aria-hidden="true"></i>
+              Languages
+            </h2>
+            <ul class="list-unstyled mb-0">
+              <li class="d-flex align-items-center justify-content-between py-2 border-bottom border-secondary">
+                <span>Arabic</span>
+                <span class="badge bg-secondary">Native</span>
+              </li>
+              <li class="d-flex align-items-center justify-content-between py-2 border-bottom border-secondary">
+                <span>French</span>
+                <span class="badge bg-secondary">Fluent</span>
+              </li>
+              <li class="d-flex align-items-center justify-content-between py-2">
+                <span>English</span>
+                <span class="badge bg-secondary">Professional</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Skills #}
+  <div class="border-top border-bottom border-secondary bg-light py-5">
+    <div class="container">
+      <h2 class="h4 text-center mb-2">Skills &amp; stack</h2>
+      <p class="text-body-secondary text-center small mb-4 col-md-8 mx-auto">Technologies I work with across web, mobile, and backend.</p>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-xl-3">
+          <div class="p-3 rounded-4 border border-secondary h-100">
+            <h3 class="h6 text-primary mb-3"><i class="bi bi-window-sidebar me-2" aria-hidden="true"></i>Web</h3>
+            <div class="d-flex flex-wrap gap-2">
+              {% for tag in ['HTML', 'CSS', 'JavaScript', 'Tailwind CSS', 'React', 'Next.js'] %}
+                <span class="badge rounded-pill bg-body-primary border border-secondary">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+          <div class="p-3 rounded-4 border border-secondary h-100">
+            <h3 class="h6 text-info mb-3"><i class="bi bi-server me-2" aria-hidden="true"></i>Backend &amp; APIs</h3>
+            <div class="d-flex flex-wrap gap-2">
+              {% for tag in ['PHP', 'Symfony', 'Python', 'Django', 'Java'] %}
+                <span class="badge rounded-pill bg-body-primary border border-secondary">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+          <div class="p-3 rounded-4 border border-secondary h-100">
+            <h3 class="h6 text-success mb-3"><i class="bi bi-phone me-2" aria-hidden="true"></i>Mobile</h3>
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge rounded-pill bg-body-primary border border-secondary">Flutter</span>
+              <span class="badge rounded-pill bg-body-primary border border-secondary">Dart</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+          <div class="p-3 rounded-4 border border-secondary h-100">
+            <h3 class="h6 text-warning mb-3"><i class="bi bi-database me-2" aria-hidden="true"></i>Data &amp; tools</h3>
+            <div class="d-flex flex-wrap gap-2">
+              {% for tag in ['MySQL', 'MongoDB', 'SQL Server', 'Git'] %}
+                <span class="badge rounded-pill bg-body-primary border border-secondary">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-5">
+    {# Interests #}
+    <h2 class="h4 mb-3 text-center">Interests</h2>
+    <div class="row g-3 justify-content-center mb-5">
+      {% set interests = [
+        { 'icon': 'bi-code-slash', 'label': 'Web development' },
+        { 'icon': 'bi-calendar-event', 'label': 'Event organization' },
+        { 'icon': 'bi-people', 'label': 'Leadership roles' },
+        { 'icon': 'bi-heart', 'label': 'Volunteering' },
+      ] %}
+      {% for item in interests %}
+        <div class="col-6 col-md-3">
+          <div class="text-center p-4 rounded-4 border border-secondary h-100 bg-body-primary">
+            <i class="bi {{ item.icon }} fs-3 text-primary d-block mb-2" aria-hidden="true"></i>
+            <span class="small fw-medium">{{ item.label }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="row g-5">
+      {# Education #}
+      <div class="col-lg-6">
+        <h2 class="h4 d-flex align-items-center gap-2 mb-4">
+          <i class="bi bi-journal-bookmark text-primary" aria-hidden="true"></i>
+          Education
+        </h2>
+        <div class="portfolio-timeline ms-2">
+          <div class="position-relative pb-4">
+            <span class="portfolio-timeline__dot"></span>
+            <div class="card border-secondary bg-transparent">
+              <div class="card-body">
+                <h3 class="h6 mb-1">Higher Institute of Applied Sciences and Technology of Sousse</h3>
+                <p class="small text-primary mb-2">2024 — present</p>
+                <p class="text-body-secondary small mb-0">Software engineering</p>
+              </div>
+            </div>
+          </div>
+          <div class="position-relative">
+            <span class="portfolio-timeline__dot"></span>
+            <div class="card border-secondary bg-transparent">
+              <div class="card-body">
+                <h3 class="h6 mb-1">Higher Institute of Applied Sciences and Technology of Sousse</h3>
+                <p class="small text-primary mb-2">2022 — 2024</p>
+                <p class="text-body-secondary small mb-0">Preparatory classes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Experience #}
+      <div class="col-lg-6">
+        <h2 class="h4 d-flex align-items-center gap-2 mb-4">
+          <i class="bi bi-briefcase text-info" aria-hidden="true"></i>
+          Experience
+        </h2>
+        <div class="d-flex flex-column gap-3">
+          <div class="card border-secondary shadow-sm bg-transparent">
+            <div class="card-body">
+              <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+                <h3 class="h6 mb-0">Flutter developer —     internship</h3>
+                <span class="badge bg-info text-dark align-self-start">ZNET IT · Sfax</span>
+              </div>
+              <p class="small text-info mb-2">July 2025 — August 2025</p>
+              <p class="text-body-secondary small mb-0">Developed the front end of a multi-platform sterilization workflow app using Flutter and Dart.</p>
+            </div>
+          </div>
+          <div class="card border-secondary shadow-sm bg-transparent">
+            <div class="card-body">
+              <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+                <h3 class="h6 mb-0">WinDev 17 developer</h3>
+                <span class="badge bg-info align-self-start">ITECH DATA · Sfax</span>
+              </div>
+              <p class="small text-info mb-2">June 2024 — July 2024</p>
+              <p class="text-body-secondary small mb-0">Built a desktop invoicing management application with WinDev 17 and SQL Server.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Community #}
+    <div class="mt-5 pt-4 border-top border-secondary">
+      <h2 class="h4 d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-people-fill text-success" aria-hidden="true"></i>
+        Community life
+      </h2>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="d-flex gap-3 p-3 rounded-4 border border-secondary bg-body-primary h-100">
+            <div class="flex-shrink-0 text-primary fs-4"><i class="bi bi-award" aria-hidden="true"></i></div>
+            <div>
+              <h3 class="h6 mb-1">President — Microsoft ISSAT Sousse Club</h3>
+              <p class="small text-body-secondary mb-0">August 2025 — present</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex gap-3 p-3 rounded-4 border border-secondary bg-body-primary h-100">
+            <div class="flex-shrink-0 text-info fs-4"><i class="bi bi-person-check" aria-hidden="true"></i></div>
+            <div>
+              <h3 class="h6 mb-1">Vice President — Microsoft ISSAT Sousse Club</h3>
+              <p class="small text-body-secondary mb-0">August 2024 — July 2025</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex gap-3 p-3 rounded-4 border border-secondary bg-body-primary h-100">
+            <div class="flex-shrink-0 text-warning fs-4"><i class="bi bi-kanban" aria-hidden="true"></i></div>
+            <div>
+              <h3 class="h6 mb-1">Business &amp; event manager — Microsoft ISSAT Sousse Club</h3>
+              <p class="small text-body-secondary mb-0">August 2023 — July 2024</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex gap-3 p-3 rounded-4 border border-secondary bg-body-primary h-100">
+            <div class="flex-shrink-0 text-success fs-4"><i class="bi bi-globe2" aria-hidden="true"></i></div>
+            <div>
+              <h3 class="h6 mb-1">Organizer — Tunisia Dev Day</h3>
+              <p class="small text-body-secondary mb-0">October 2024</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Projects #}
+    <div class="mt-5">
+      <div class="card border-primary overflow-hidden">
+        <div class="card-body p-4 p-md-5 text-center">
+          <div class="mb-3 text-primary"><i class="bi bi-stars fs-1" aria-hidden="true"></i></div>
+          <h2 class="h4 mb-2">Projects</h2>
+          <p class="text-body-secondary col-lg-8 mx-auto mb-4">
+            I love shipping real software — from coursework to side projects. This portfolio site is part of the MyEvent platform built with Symfony.
+          </p>
+          <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a class="btn btn-primary" href="{{ path('app_events_index') }}"><i class="bi bi-calendar-event me-2" aria-hidden="true"></i>Explore MyEvent</a>
+            <a class="btn btn-outline-dark" href="{{ path('app_home') }}"><i class="bi bi-house me-2" aria-hidden="true"></i>Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

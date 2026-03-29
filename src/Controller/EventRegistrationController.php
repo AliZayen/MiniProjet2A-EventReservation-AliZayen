@@ -21,7 +21,8 @@ final class EventRegistrationController extends AbstractController
         Event $event,
         EntityManagerInterface $em,
         EventRegistrationRepository $registrations,
-    ): Response {
+    ): Response 
+    {
         $this->denyAccessUnlessGranted('ROLE_PARTICIPANT');
 
         $user = $this->getUser();
@@ -41,7 +42,9 @@ final class EventRegistrationController extends AbstractController
 
         $token = (string) $request->request->get('_token');
         if (!$this->isCsrfTokenValid('register_event_'.$event->getId(), $token)) {
-            throw $this->createAccessDeniedException('Invalid CSRF token.');
+            $this->addFlash('danger', 'Security check failed. Please try registering again.');
+
+            return $this->redirectToRoute('app_events_show', ['id' => $event->getId()]);
         }
 
         $ticketType = trim((string) $request->request->get('ticket_type', 'General'));
@@ -144,7 +147,8 @@ final class EventRegistrationController extends AbstractController
         Request $request,
         EventRegistration $registration,
         EntityManagerInterface $em,
-    ): Response {
+    ): Response 
+    {
         $this->denyAccessUnlessGranted('ROLE_USER');
         $event = $registration->getEvent();
         if (null === $event || !$this->canViewEventRegistrations($event)) {
@@ -153,7 +157,9 @@ final class EventRegistrationController extends AbstractController
 
         $token = (string) $request->request->get('_token');
         if (!$this->isCsrfTokenValid('registration_payment_'.$registration->getId(), $token)) {
-            throw $this->createAccessDeniedException('Invalid CSRF token.');
+            $this->addFlash('danger', 'Security check failed. Please try again.');
+
+            return $this->redirectToRoute('app_event_registrations', ['id' => $event->getId()]);
         }
 
         $status = (string) $request->request->get('payment_status', EventRegistration::PAYMENT_UNPAID);
